@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AIShield</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .description {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 15px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-top: 8px;
+            margin-bottom: 15px;
+            padding: 10px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        #result {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #f1f1f1;
+            display: none;
+        }
+
+        .result-item {
+            margin: 10px 0;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <div class="container">
+
+        <h1>AIShield</h1>
+
+        <p class="description">
+            AI Safety, Hallucination & Jailbreak Detection
+        </p>
+
+
+        <!-- User Prompt -->
+
+        <label>Enter Prompt:</label>
+
+        <textarea
+            id="prompt"
+            placeholder="Example: Explain machine learning in simple words."
+        ></textarea>
+
+
+        <!-- Reference / Source -->
+
+        <label>Reference / Source Text:</label>
+
+        <textarea
+            id="source"
+            placeholder="Enter the trusted/reference information here..."
+        ></textarea>
+
+
+        <!-- AI Answer -->
+
+        <label>Enter AI Answer:</label>
+
+        <textarea
+            id="answer"
+            placeholder="Enter the AI generated answer here..."
+        ></textarea>
+
+
+        <button onclick="analyzePrompt()">
+            Analyze
+        </button>
+
+
+        <!-- Results -->
+
+        <div id="result">
+
+            <h2>Analysis Result</h2>
+
+            <p class="result-item" id="finalStatus"></p>
+
+            <p class="result-item" id="safetyResult"></p>
+
+            <p class="result-item" id="riskScore"></p>
+
+            <p class="result-item" id="factualityResult"></p>
+
+            <p class="result-item" id="factualityScore"></p>
+
+            <p class="result-item" id="nliMethod"></p>
+
+            <p class="result-item" id="detectedPatterns"></p>
+
+            <p class="result-item" id="perplexity"></p>
+
+            <p class="result-item" id="latency"></p>
+
+            <p class="result-item" id="deflection"></p>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        async function analyzePrompt() {
+
+            const prompt =
+                document.getElementById("prompt").value;
+
+            const source =
+                document.getElementById("source").value;
+
+            const answer =
+                document.getElementById("answer").value;
+
+
+            const response = await fetch("/analyze", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    prompt: prompt,
+
+                    source: source,
+
+                    answer: answer
+
+                })
+
+            });
+
+
+            const data = await response.json();
+
+
+            document.getElementById("result").style.display =
+                "block";
+
+
+            document.getElementById("finalStatus").innerText =
+                "Final Status: " + data.final_status;
+
+
+            document.getElementById("safetyResult").innerText =
+                "Safety: " + data.safety.status;
+
+
+            document.getElementById("riskScore").innerText =
+                "Risk Score: " + data.safety.risk_score;
+
+
+            document.getElementById("factualityResult").innerText =
+                "NLI Factuality: " + data.factuality.status;
+
+
+            document.getElementById("factualityScore").innerText =
+                "Factuality Score: " +
+                data.factuality.factuality_score;
+
+
+            document.getElementById("nliMethod").innerText =
+                "Method: " + data.factuality.method;
+
+
+            document.getElementById("detectedPatterns").innerText =
+                "Detected Patterns: " +
+
+                (
+                    data.safety.detected_patterns.length > 0
+
+                        ? data.safety.detected_patterns.join(", ")
+
+                        : "None"
+                );
+
+
+            document.getElementById("perplexity").innerText =
+                "Perplexity: " +
+                data.perplexity.perplexity;
+
+
+            document.getElementById("latency").innerText =
+                "Latency: " +
+                data.latency_ms +
+                " ms";
+
+
+            document.getElementById("deflection").innerText =
+                "Attack Deflection Rate: " +
+                data.evaluation.attack_deflection_rate +
+                "%";
+
+        }
+
+    </script>
+
+</body>
+
+</html>
